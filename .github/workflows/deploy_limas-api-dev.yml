@@ -4,9 +4,10 @@
 name: Deploy API to Azure Web App (Dev) - limas-api-dev
 
 on:
-  push:
-    branches:
-      - dev
+  workflow_run:
+    workflows: ["SonarCloud"]
+    types:
+        - completed
   workflow_dispatch:
 
 jobs:
