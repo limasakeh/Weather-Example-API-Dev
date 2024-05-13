@@ -34,7 +34,8 @@ namespace Weather_Example_API_Dev.Controllers
             .ToArray();
         }
 
-        [HttpGet(Name = "Shutdown")]
+        
+        [HttpPost(Name = "Shutdown")]
         public string Shutdown(string userID)
         {
             // Example Password for vulnerability finding
