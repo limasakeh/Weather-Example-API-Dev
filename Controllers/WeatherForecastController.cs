@@ -2,13 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using IApplicationLifetime = Microsoft.AspNetCore.Hosting.IApplicationLifetime;
 
 namespace Weather_Example_API_Dev.Controllers
 {
+    public class ShutdownParameter
+    {
+        public string UserID { get; set; }
+    }
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
+        private IApplicationLifetime ApplicationLifetime { get; set;}
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -16,9 +22,10 @@ namespace Weather_Example_API_Dev.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IApplicationLifetime applicationLifetime)
         {
             _logger = logger;
+            ApplicationLifetime = applicationLifetime;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -36,17 +43,22 @@ namespace Weather_Example_API_Dev.Controllers
 
         
         [HttpPost(Name = "Shutdown")]
-        public string Shutdown(string userID)
+        public string Shutdown([FromBody] ShutdownParameter userID)
         {
             // Example Password for vulnerability finding
             var password = "TestPassword";
 
-            Console.WriteLine("User ID is : " + userID);
+            Console.WriteLine("User ID is : " + userID.UserID);
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
 
+            if(userID.UserID == "Shutdown")
+            {
+                ApplicationLifetime.StopApplication();
+                return "Shutting Down";
+            }
             // Vulnerability Scanning Test
-            if(userID == password)
+            if(userID.UserID == password)
             {
                 using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
                 {
